@@ -1,0 +1,28 @@
+package com.demo.test;
+
+import com.demo.service.LowAttendanceException;
+import com.demo.service.Student;
+
+public class StudentTest {
+
+	public static void main(String[] args) {
+		try {
+		Student stu=new Student(1,"prasad","AiMl",60,80);
+		System.out.println(stu);
+		String grade=stu.calculateGrade();
+		System.out.println(grade);
+		}catch(LowAttendanceException e) {
+			System.out.println("Error:"+e.getMessage());
+		}
+		
+//		stu.rollno;
+//		System.out.println(stu.getRollno());
+		
+		System.out.println("--------------------------------------");
+		
+		Student stu2=new Student();
+		System.out.println(stu2);
+//		System.out.println(stu2.getAttendance_percentage());
+	}
+
+}

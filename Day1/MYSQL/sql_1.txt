@@ -1,0 +1,110 @@
+
+1. Display top 5 highest salary earners in each dept.
+
+mysql> SELECT emp_id, emp_name, dept_id, salary
+    -> FROM (
+    ->     SELECT *,
+    ->            ROW_NUMBER() OVER (PARTITION BY dept_id ORDER BY salary DESC) AS rn
+    ->     FROM Employee
+    -> ) AS ranked_emp
+    -> WHERE rn <= 5;
++--------+----------+---------+----------+
+| emp_id | emp_name | dept_id | salary   |
++--------+----------+---------+----------+
+|      4 | David    |       1 | 70000.00 |
+|      5 | Eva      |       1 | 65000.00 |
+|      2 | Bob      |       1 | 60000.00 |
+|      3 | Charlie  |       1 | 55000.00 |
+|      1 | Alice    |       1 | 50000.00 |
+|      9 | Ian      |       2 | 55000.00 |
+|      7 | Grace    |       2 | 52000.00 |
+|      8 | Helen    |       2 | 51000.00 |
+|     10 | Jack     |       2 | 50000.00 |
+|      6 | Frank    |       2 | 48000.00 |
++--------+----------+---------+----------+
+10 rows in set (0.04 sec)
+
+2. Write a stored function getWorkingDays which accepts joining data and returns
+the no of working days.
+
+mysql> CREATE FUNCTION getWorkingDays(join_date DATE)
+    -> RETURNS INT
+    -> DETERMINISTIC
+    -> BEGIN
+    ->     DECLARE total_days INT;
+    ->     DECLARE total_working_days INT;
+    ->     DECLARE i INT;
+    ->     DECLARE current_day DATE;
+    ->
+    ->     SET total_working_days = 0;
+    ->     SET i = 0;
+    ->
+    ->     WHILE join_date + INTERVAL i DAY <= CURDATE() DO
+    ->         SET current_day = join_date + INTERVAL i DAY;
+    ->         -- Check if current day is Monday to Friday
+    ->         IF DAYOFWEEK(current_day) NOT IN (1,7) THEN
+    ->             SET total_working_days = total_working_days + 1;
+    ->         END IF;
+    ->         SET i = i + 1;
+    ->     END WHILE;
+    ->
+    ->     RETURN total_working_days;
+    -> END$$
+Query OK, 0 rows affected (0.08 sec)
+
+mysql>
+mysql> DELIMITER ;
+mysql> SELECT getWorkingDays('2025-10-01') AS working_days;
++--------------+
+| working_days |
++--------------+
+|           13 |
++--------------+
+1 row in set (0.04 sec)
+
+
+3. Write a stored procedure which updates the salary of a given emp based on no
+of working days. Give differential salary rise based on no of working days.
+
+mysql> DELIMITER $$
+mysql>
+mysql> CREATE PROCEDURE updateSalaryByWorkingDays(IN p_emp_id INT)
+    -> BEGIN
+    ->     DECLARE wd INT;
+    ->     DECLARE increment_percent DECIMAL(5,2);
+    ->
+    ->     -- Calculate working days
+    ->     SET wd = getWorkingDays((SELECT joining_date FROM employee WHERE emp_id = p_emp_id));
+    ->
+    ->     -- Determine increment based on working days
+    ->     IF wd < 100 THEN
+    ->         SET increment_percent = 5;      -- 5% increase
+    ->     ELSEIF wd BETWEEN 100 AND 200 THEN
+    ->         SET increment_percent = 10;     -- 10% increase
+    ->     ELSE
+    ->         SET increment_percent = 15;     -- 15% increase
+    ->     END IF;
+    ->
+    ->     -- Update salary
+    ->     UPDATE employee
+    ->     SET salary = salary + (salary * increment_percent / 100)
+    ->     WHERE emp_id = p_emp_id;
+    ->
+    ->     -- Show updated info
+    ->     SELECT emp_id, emp_name, salary AS updated_salary, wd AS working_days
+    ->     FROM employee
+    ->     WHERE emp_id = p_emp_id;
+    -> END$$
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> CALL updateSalaryByWorkingDays(1);
++--------+----------+----------------+--------------+
+| emp_id | emp_name | updated_salary | working_days |
++--------+----------+----------------+--------------+
+|      1 | Alice    |       57500.00 |          985 |
++--------+----------+----------------+--------------+
+1 row in set (0.05 sec)
+
+Query OK, 0 rows affected (0.05 sec)
+
+

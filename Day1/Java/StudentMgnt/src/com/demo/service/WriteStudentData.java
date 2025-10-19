@@ -1,0 +1,67 @@
+package com.demo.service;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
+public class WriteStudentData {
+	
+	public static void main(String[] args) throws LowAttendanceException {
+
+		List<Student> students=new ArrayList<Student>();
+	        students.add(new Student(1, "Preeti", "Java", 85.5, 90));
+	        students.add(new Student(2, "Rohit", "C++", 75.0, 80));
+	        students.add(new Student(3, "Aditi", "Python", 95.0, 88));
+	        students.add(new Student(4, "Karan", "React", 82.0, 70));
+	        students.add(new Student(5, "Anjali", "Angular", 67.5, 65));
+	        students.add(new Student(6, "Aman", "C#", 65.0, 59));
+	        students.add(new Student(7, "Pradnya", "HTML", 90.0, 92));
+	        students.add(new Student(8, "Divya", "SQL", 78.0, 72));
+	        students.add(new Student(9, "Nikita", "JavaScript", 85.0, 81));
+	        students.add(new Student(10, "Ankit", "Node.js", 88.0, 87));
+	        
+	        //serialisation----->converting object into Byte Stream to store in the file
+	        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("students.dat"))) {
+	            oos.writeObject(students);
+	            System.out.println("10 student data saved successfully in students.dat file");
+	        } catch (IOException e) {
+	            System.out.println("Error during serialization: " + e.getMessage());
+	        }
+	        
+	        //deserialisation---->converting that Byte stream back to object.
+	        try {
+				ObjectInputStream ois=new ObjectInputStream(new FileInputStream("students.dat"));
+				List<Student> student=(List<Student>) ois.readObject();
+				System.out.println("Students read from the file");
+				
+				for(Student s:student) {
+					System.out.println(s);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+	        
+	        // Sort in decreasing order of attendance_percentage
+	        // --------------------
+	        if (students != null) {
+	            students.sort((s1, s2) -> Double.compare(s2.getAttendance_percentage(), s1.getAttendance_percentage()));
+
+	            System.out.println("\nStudents sorted in decreasing order of attendance_percentage:");
+	            for (Student s : students) {
+	                System.out.println(s);
+	            }
+	        }
+	        
+
+	        
+	}
+
+}

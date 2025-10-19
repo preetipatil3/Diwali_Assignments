@@ -1,0 +1,19 @@
+package com.demo.test;
+
+import com.demo.service.Student;
+
+public class StudentTest {
+
+	public static void main(String[] args) {
+		Student stu=new Student(1,"prasad","AiMl",50.33,200);
+//		stu.rollno;
+//		System.out.println(stu.getRollno());
+		System.out.println(stu);
+		
+		
+		Student stu2=new Student();
+		System.out.println(stu2.getSname());
+		System.out.println(stu2.getAttendance_percentage());
+	}
+
+}

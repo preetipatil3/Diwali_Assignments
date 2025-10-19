@@ -1,0 +1,18 @@
+package com.demo.test;
+
+import com.demo.service.StudentService;
+
+public class StudentTest {
+
+	public static void main(String[] args) {
+		StudentService stu=new StudentService();
+//		stu.rollno;
+		System.out.println(stu.getRollno());
+		
+		
+		StudentService stu2=new StudentService();
+		System.out.println(stu2.getSname());
+		System.out.println(stu2.getAttendance_percentage());
+	}
+
+}
